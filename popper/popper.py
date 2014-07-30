@@ -2,7 +2,7 @@
 
 """popper.popper: provides entry point main()."""
 
-__version__ = "0.2.0"
+__version__ = "0.1"
 
 import sys
 import json
@@ -66,14 +66,12 @@ def main( config="/etc/popper/popper.conf", log_file="/var/log/popper/popper.log
                 branch = post_data['ref'].replace('refs/heads/','')
                 repo = post_data['repository']['full_name']
                 pusher = post_data['pusher']['name']
-                head = post_data['head_commit']['id']
                 
                 deploy = False
                 
                 # Check Against the Deployment Config
                 for deployment in deployments:
                     if deployment['repo'] == repo and deployment['branch'] == branch:
-                        
                         # Get the Deployment Settings
                         tmp_path = "/tmp/pop-pull"
                         destination = deployment['destination']
@@ -84,24 +82,34 @@ def main( config="/etc/popper/popper.conf", log_file="/var/log/popper/popper.log
                             
                         os.mkdir( tmp_path )
                         
+                        #Get the Tar Names
                         remote_tar = "https://github.com/%s/tarball/%s" % (repo, branch) 
                         local_tar = "%s/%s.tar.gz" % ( tmp_path, branch)
-                        sync_folder = "%s/%s-%s/" % ( tmp_path, repo.replace("/", "-" ), head )
                         
-                        if hasattr(deployment, 'token'):
+                        #Check if the tar should be requested securely
+                        if deployment.has_key( 'token' ):
                             call( [ "curl", "-u", "%s:x-oauth-basic" % deployment['token'], "-Lo", local_tar,  remote_tar ] )
                         else:
                             call( [ "curl", "-Lo", local_tar,  remote_tar ] )
                         
+                        #Untar Files
                         call( [ "tar", "-xvzf", local_tar , "-C", "%s/" % tmp_path ] )
                         call( [ "rm", local_tar ] )
-                        call( [ "rsync", "-r", sync_folder, "%s/" % destination ])
-                            
-                        if hasattr(deployment, 'post-commands'):
-                            pass
                         
+                        #Rsync to Destination
+                        sync_folder = "%s/%s/" % ( tmp_path,  os.listdir( tmp_path )[0] )
+                        call( [ "rsync", "-r", sync_folder, "%s/" % destination ])
+                        
+                        #Remove the Temporary Files
+                        call( [ "rm", "-r", tmp_path ])
+                            
+                        #Run any post commands
+                        if deployment.has_key('post-commands'):
+                            for command in deployment['post-commands']:
+                                call( command.split(" ") )
+                            
                         deploy = True
-                        logging.info("Sucessful Hook: Repo:%s, Branch:%s" % (  repo, branch  ) )
+                        logging.info("Sucessful Hook: Repo:%s, Branch:%s, Destination: %s" % (  repo, branch, destination ) )
                         
                 if not deploy:
                     logging.warn("Unknown Hook: Repo%s, Branch:%s, From: %s" % (  repo, branch, pusher ) )
