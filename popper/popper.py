@@ -14,9 +14,14 @@ import mimetools
 from subprocess import call
 from _pyio import StringIO
 
-def main( config="/etc/popper/popper.conf", log_file="/var/log/popper/popper.log"):
+def main( config="/etc/popper/popper.conf", log_file=""):
     
     #Create the log file (if deleted)
+    if log_file == "" : 
+        if not os.path.isdir("/var/log/popper" ):
+            os.mkdir( "/var/log/popper" )
+        log_file = "/var/log/popper/popper.log"
+        
     if not os.path.isfile( log_file ):
         open( log_file, 'w' )
     

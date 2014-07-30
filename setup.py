@@ -18,11 +18,10 @@ version = re.search(
 with open("README.txt", "rb") as f:
     long_descr = f.read().decode("utf-8")
     
-    
 data_files = []
 
-data_files.append(('/etc/init','debian/upstart/popper.conf'))
-data_files.append(('/etc/popper','popper.conf'))
+data_files.append(('/etc/init.d',['conf/debian/upstart/popper.conf']))
+data_files.append(('/etc/popper',['conf/popper.conf']))
 
 setup(
     name = "Popper",
@@ -36,5 +35,6 @@ setup(
     author = "Ben Doran",
     author_email = "greppinfunk@gmail.com",
     url = "http://bdoran.co.uk",
+    package_data = { 'conf' : ["conf/*"] },
     data_files=data_files
 )

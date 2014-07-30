@@ -1,1 +1,3 @@
 include LICENSE
+include conf/popper.conf
+include conf/debian/upstart/popper.conf
