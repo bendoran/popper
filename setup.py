@@ -20,7 +20,7 @@ with open("README.txt", "rb") as f:
     
 data_files = []
 
-data_files.append(('/etc/init.d',['conf/debian/upstart/popper.conf']))
+data_files.append(('/etc/init.d',['conf/debian/upstart/popper']))
 data_files.append(('/etc/popper',['conf/popper.conf']))
 
 setup(

@@ -107,15 +107,16 @@ def main( config="/etc/popper/popper.conf", log_file=""):
                         
                         #Remove the Temporary Files
                         call( [ "rm", "-r", tmp_path ])
-                            
-                        #Run any post commands
-                        if deployment.has_key('post-commands'):
-                            for command in deployment['post-commands']:
-                                call( command.split(" ") )
-                            
+                        
                         deploy = True
                         logging.info("Sucessful Hook: Repo:%s, Branch:%s, Destination: %s" % (  repo, branch, destination ) )
-                        
+                            
+                        #Run any post commands
+                        if deployment.has_key( 'post-commands' ):
+                            for command in deployment['post-commands']:
+                                logging.info("Running Command: %s" % command )
+                                call( command, shell=True )
+                            
                 if not deploy:
                     logging.warn("Unknown Hook: Repo%s, Branch:%s, From: %s" % (  repo, branch, pusher ) )
                     
