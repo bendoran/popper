@@ -2,7 +2,7 @@
 
 """popper.popper: provides entry point main()."""
 
-__version__ = "0.1"
+__version__ = "0.3"
 
 import sys
 import json
@@ -78,7 +78,7 @@ def main( config="/etc/popper/popper.conf", log_file=""):
                 for deployment in deployments:
                     if deployment['repo'] == repo and deployment['branch'] == branch:
                         # Get the Deployment Settings
-                        tmp_path = "/tmp/pop-pull"
+                        tmp_path = "/tmp/pop-pull-%s" % repo.replace("/","_")
                         destination = deployment['destination']
                         
                         #Recreate temp directory
